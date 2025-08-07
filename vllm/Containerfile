@@ -10,4 +10,5 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
-CMD ["python3", "-m", "vllm.entrypoints.openai.api_server", "--host", "0.0.0.0", "--port", "8000", "--max-model-len", "64", "--enforce-eager", "--gpu-memory-utilization=0.01", "--dtype", "auto", "--max-num-seqs", "1", "--model", "/app/models/Ministral-8B-Instruct-2410"]
+# CMD ["python3", "-m", "vllm.entrypoints.openai.api_server", "--host", "0.0.0.0", "--port", "8000", "--max-model-len", "32768", "--enforce-eager", "--gpu-memory-utilization=1.0", "--dtype", "float16", "--max-num-seqs", "1", "--model", "/app/models/Ministral-8B-Instruct-2410-awq"]
+CMD ["python3", "-m", "vllm.entrypoints.openai.api_server", "--host", "0.0.0.0", "--port", "8000", "--max-model-len", "32768", "--enforce-eager", "--gpu-memory-utilization=1.0", "--dtype", "float16", "--max-num-seqs", "1", "--model", "/app/models/Skywork-o1-Open-Llama-3.1-8B-awq"]

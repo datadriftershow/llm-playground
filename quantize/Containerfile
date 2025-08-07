@@ -1,0 +1,46 @@
+# Use the official NVIDIA CUDA developer image as the base [cite: 136]
+# A 'devel' image is chosen as it includes compilers needed for auto-gptq
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 as builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3-pip \
+    git \
+    python3.10-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up a virtual environment for clean dependency management
+RUN python3.10 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Pre-install PyTorch with CUDA support to satisfy dependencies for other libraries
+RUN pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121
+
+# Copy and install all other requirements [cite: 140]
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# --- Final Image ---
+# Use a runtime base image to keep the final image leaner
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the virtual environment from the builder stage
+COPY --from=builder /opt/venv /opt/venv
+
+# Copy the quantization script into the container
+WORKDIR /app
+COPY quantize.py .
+
+# Set the PATH to use the Python from our virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
+
+# This command is the main process of the container. It runs the quantization script. [cite: 145, 146]
+# The container will exit once this script finishes.
+CMD ["python3", "quantize.py"]
