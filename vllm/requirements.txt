@@ -1,0 +1,5 @@
+vllm==0.3.3
+transformers>=4.34.0
+torch
+huggingface_hub
+outlines<0.1.0
