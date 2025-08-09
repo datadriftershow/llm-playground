@@ -1,0 +1,21 @@
+# Use a slim Python image
+FROM python:3.11-slim
+
+# Set the environment variables for the local LLM connection
+ENV OPENAI_API_BASE="http://localhost:8000/v1"
+ENV OPENAI_API_KEY="not-needed"
+# This tells the client what model to request from the endpoint
+ENV OPENAI_MODEL_NAME="hosted_vllm//app/models/Ministral-8B-Instruct-2410-awq"
+
+# Set the working directory
+WORKDIR /app
+
+# Copy and install dependencies
+COPY ./requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY ./main.py .
+
+# Command to run the CrewAI application directly
+CMD ["python", "main.py"]
