@@ -1,0 +1,2 @@
+# Use the official Ollama image which includes CUDA support
+FROM ollama/ollama
